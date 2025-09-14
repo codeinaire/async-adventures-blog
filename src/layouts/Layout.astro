@@ -155,9 +155,9 @@ let generatedCss: string = cssLines.join('\n')
         <div class="min-w-0">
           <slot />
         </div>
-        <!-- <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-          <TagsSidebar tags={siteConfig.tags} />
-        </aside> -->
+        <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start">
+          <TagsSidebar tags={tags || siteConfig.tags} />
+        </aside>
       </main>
       <Footer />
     </div>
