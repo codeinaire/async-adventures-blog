@@ -175,3 +175,39 @@ export async function getSortedPosts() {
   })
   return sortedPosts
 }
+
+export async function getTagCounts() {
+  const allPosts = await getCollection('posts', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true
+  })
+
+  const tagCounts: { [key: string]: number } = {}
+
+  allPosts.forEach((post) => {
+    if (post.data.tags) {
+      post.data.tags.forEach((tag: string) => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1
+      })
+    }
+  })
+
+  return tagCounts
+}
+
+export async function getAllPostTags() {
+  const allPosts = await getCollection('posts', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true
+  })
+
+  const allTags = new Set<string>()
+
+  allPosts.forEach((post) => {
+    if (post.data.tags) {
+      post.data.tags.forEach((tag: string) => {
+        allTags.add(tag)
+      })
+    }
+  })
+
+  return Array.from(allTags).sort()
+}

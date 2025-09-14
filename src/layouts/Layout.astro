@@ -6,7 +6,7 @@ import LightDarkAutoThemeLoader from '@components/LightDarkAutoThemeLoader.astro
 import SelectThemeLoader from '@components/SelectThemeLoader.astro'
 import TagsSidebar from '@components/TagsSidebar.astro'
 import siteConfig from '../site.config'
-import { pick, resolveThemeColorStyles } from '@utils'
+import { pick, resolveThemeColorStyles, getTagCounts, getAllPostTags } from '@utils'
 import crypto from 'crypto'
 
 interface Props {
@@ -69,6 +69,8 @@ const themeHash = crypto
   .slice(0, 8) // Truncate to the first 8 characters
 
 const resolvedThemes = await resolveThemeColorStyles(siteConfig.themes.include)
+const tagCounts = await getTagCounts()
+const allPostTags = await getAllPostTags()
 
 let cssLines: string[] = []
 for (const [themeId, themeStyles] of Object.entries(resolvedThemes)) {
@@ -156,7 +158,7 @@ let generatedCss: string = cssLines.join('\n')
           <slot />
         </div>
         <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-          <TagsSidebar tags={tags || siteConfig.tags} />
+          <TagsSidebar tags={tags || allPostTags} tagCounts={tagCounts} />
         </aside>
       </main>
       <Footer />
