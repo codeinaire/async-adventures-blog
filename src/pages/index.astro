@@ -4,8 +4,6 @@ import { getSortedPosts } from '@utils'
 import { getCollection, render } from 'astro:content'
 import PostPreview from '@components/PostPreview.astro'
 import Pagination from '@components/Pagination.astro'
-import BlockHeader from '@components/BlockHeader.astro'
-import HomeBanner from '@components/HomeBanner.astro'
 import siteConfig from '../site.config'
 
 const home = await getCollection('home')
@@ -23,14 +21,6 @@ const sortedPosts = await getSortedPosts()
 ---
 
 <Layout>
-  {
-    HomeContent && (
-      <HomeBanner avatarImage={homeAvatarImage} githubCalendar={homeGithubCalendar}>
-        <HomeContent />
-      </HomeBanner>
-    )
-  }
-  <BlockHeader>Latest Posts</BlockHeader>
   {sortedPosts.slice(0, siteConfig.pageSize).map((post) => <PostPreview post={post} />)}
   <Pagination nextLink="/posts" nextText="More Posts" />
 </Layout>

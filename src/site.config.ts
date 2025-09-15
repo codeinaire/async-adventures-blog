@@ -4,7 +4,7 @@ const config: SiteConfig = {
   // Absolute URL to the root of your published site, used for generating links and sitemaps.
   site: 'https://asyncadventures.com',
   // The name of your site, used in the title and for SEO.
-  title: 'AsyncAdventures',
+  title: 'Async Adventures',
   // The description of your site, used for SEO and RSS feed.
   description: 'Adventures in the world of software development',
   // The author of the site, used in the footer, SEO, and RSS feed.

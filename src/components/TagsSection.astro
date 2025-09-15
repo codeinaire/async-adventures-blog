@@ -13,7 +13,7 @@ const tagsWithCount = Array.from(tags)
     const count = posts.filter((post) => post.data.tags?.includes(tag)).length
     return { tag, count }
   })
-  .sort((a, b) => b.count - a.count)
+  .sort((a, b) => a.tag.localeCompare(b.tag))
 ---
 
 <ul class="flex flex-wrap gap-x-3 gap-y-4 my-5">
