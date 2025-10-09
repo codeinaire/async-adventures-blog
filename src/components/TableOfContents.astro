@@ -16,9 +16,9 @@ function injectChild(items: TocItem[], item: TocItem): void {
 
 function generateToc(
   headings: ReadonlyArray<MarkdownHeading>,
-  { maxHeadingLevel = 4, minHeadingLevel = 2 }: TocOpts = {},
+  { maxHeadingLevel = 4, minHeadingLevel = 1 }: TocOpts = {},
 ) {
-  // by default this ignores/filters out h1 and h5 heading(s)
+  // Include h1 headings in the table of contents
   const bodyHeadings = headings.filter(
     ({ depth }) => depth >= minHeadingLevel && depth <= maxHeadingLevel,
   )
@@ -40,27 +40,48 @@ const toc = generateToc(headings)
 
 <details
   open
-  class="relative text-foreground/90 bg-foreground/6 xl:bg-transparent px-8 xl:pr-2 py-6 mt-5 xl:mt-0 w-full rounded-xl border-3 xl:border-none border-accent/10 xl:sticky xl:top-10 xl:basis-[280px] 2xl:basis-[340px] xl:order-2 xl:shrink-0"
+  class="relative text-foreground/90 bg-foreground/6 px-8 py-6 w-full rounded-xl border-3 border-accent/10"
 >
   <summary
     class="list-none marker:hidden marker:content-[''] before:content-['>'] before:text-accent before:font-semibold before:absolute before:left-3 cursor-pointer"
     >Table of Contents</summary
   >
   <nav class="w-full text-sm">
-    <ol class="mt-4 flex flex-col max-w-full">
-      {toc.map((heading) => <TOCHeading heading={heading} />)}
-    </ol>
+    {
+      toc.length > 0 ? (
+        <ol class="mt-4 flex flex-col max-w-full">
+          {toc.map((heading) => (
+            <TOCHeading heading={heading} />
+          ))}
+        </ol>
+      ) : (
+        <p class="mt-4 text-foreground/60">No headings found</p>
+      )
+    }
   </nav>
 </details>
 
 <script>
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault()
-      const href = anchor.getAttribute('href')
-      if (!href) return
-      document.querySelector(href)?.scrollIntoView({
-        behavior: 'smooth',
+  document.addEventListener('DOMContentLoaded', function () {
+    // Handle table of contents links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault()
+        const href = anchor.getAttribute('href')
+        if (!href) return
+
+        const targetElement = document.querySelector(href)
+        if (targetElement) {
+          // Calculate offset to account for sticky header
+          const headerOffset = 100
+          const elementPosition = targetElement.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          })
+        }
       })
     })
   })

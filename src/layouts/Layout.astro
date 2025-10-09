@@ -132,7 +132,7 @@ let generatedCss: string = cssLines.join('\n')
     <meta name="keywords" content={pageKeywords} />
     <link rel="canonical" href={pageUrl} />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- <link rel="icon" href="/favicon.svg" type="image/svg+xml" /> -->
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -157,8 +157,9 @@ let generatedCss: string = cssLines.join('\n')
         <div class="min-w-0">
           <slot />
         </div>
-        <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start">
+        <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start space-y-6">
           <TagsSidebar tags={tags || allPostTags} tagCounts={tagCounts} />
+          <slot name="sidebar" />
         </aside>
       </main>
       <Footer />
