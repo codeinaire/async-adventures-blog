@@ -9,14 +9,15 @@ const {
   heading: { children, depth, slug, text },
 } = Astro.props
 
-const prefix = '#'.repeat(depth)
+const isFootnotes = slug === 'footnotes' || text?.toLowerCase?.() === 'footnotes'
+const renderDepth = isFootnotes ? 1 : depth
 ---
 
 <>
   <li class="flex items-stretch border-foreground/20">
     <div class="flex">
       {
-        Array.from({ length: depth - 1 }, (_v, _k) => (
+        Array.from({ length: renderDepth - 1 }, (_v, _k) => (
           <div class="toc-lines flex flex-col items-center">
             <span class="top-box w-4 xl:w-3 basis-4 border-b-1 border-foreground/20" />
             <span class="bottom-box w-4 xl:w-3 flex-1 border-t-1 border-foreground/20" />
@@ -24,12 +25,13 @@ const prefix = '#'.repeat(depth)
         ))
       }
     </div>
-    <a class="inline-block line-clamp-2 ml-3 xl:ml-2 py-1 hover:text-accent" href={`#${slug}`}
-      ><span aria-hidden="true" class="me-1.5">{prefix}</span>{text}</a
+    <a
+      class="inline-block line-clamp-2 ml-1 xl:ml-1 py-1 hover:text-accent"
+      href={`#${slug}`}>{text}</a
     >
   </li>
   {
-    children.length > 0 && depth < 3 && (
+    children.length > 0 && renderDepth < 3 && (
       <li>
         {children.map((subheading) => (
           <Astro.self heading={subheading} />
@@ -41,9 +43,12 @@ const prefix = '#'.repeat(depth)
 
 <style>
   .toc-lines:first-child span {
-    border-left-width: 2px;
+    border-right-width: 2px;
+    border-left-width: 0;
+    /* keep only the right-most portion so the horizontal does not extend left */
+    clip-path: inset(0 0 0 80%);
   }
   li:last-child .toc-lines:first-child span.bottom-box {
-    border-left-width: 0 !important;
+    border-right-width: 0 !important;
   }
 </style>

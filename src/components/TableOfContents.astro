@@ -19,9 +19,13 @@ function generateToc(
   { maxHeadingLevel = 4, minHeadingLevel = 1 }: TocOpts = {},
 ) {
   // Include h1 headings in the table of contents
-  const bodyHeadings = headings.filter(
-    ({ depth }) => depth >= minHeadingLevel && depth <= maxHeadingLevel,
-  )
+  const bodyHeadings = headings
+    .filter(({ depth }) => depth >= minHeadingLevel && depth <= maxHeadingLevel)
+    // Exclude automatically generated footnotes heading from TOC
+    .filter(({ slug, text }) => {
+      const normalized = text?.toLowerCase?.()
+      return slug !== 'footnotes' && normalized !== 'footnotes'
+    })
   const toc: Array<TocItem> = []
 
   for (const heading of bodyHeadings) injectChild(toc, { ...heading, children: [] })

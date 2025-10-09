@@ -169,10 +169,6 @@ article img {
   h1 {
     @apply text-2xl text-[var(--theme-h1)];
 
-    &::before {
-      @apply mr-2 content-['#'];
-    }
-
     .heading-anchor svg {
       @apply size-5.5;
     }
@@ -180,10 +176,6 @@ article img {
 
   h2 {
     @apply text-2xl text-[var(--theme-h2)];
-
-    &::before {
-      @apply mr-2 content-['##'];
-    }
 
     .heading-anchor svg {
       @apply size-5.5;
@@ -193,10 +185,6 @@ article img {
   h3 {
     @apply text-xl text-[var(--theme-h3)];
 
-    &::before {
-      @apply mr-2 content-['###'];
-    }
-
     .heading-anchor svg {
       @apply size-5;
     }
@@ -204,10 +192,6 @@ article img {
 
   h4 {
     @apply text-xl text-[var(--theme-h4)];
-
-    &::before {
-      @apply mr-2 content-['####'];
-    }
 
     .heading-anchor svg {
       @apply size-5;
@@ -217,10 +201,6 @@ article img {
   h5 {
     @apply text-lg text-[var(--theme-h5)];
 
-    &::before {
-      @apply mr-2 content-['#####'];
-    }
-
     .heading-anchor svg {
       @apply size-4.5;
     }
@@ -228,10 +208,6 @@ article img {
 
   h6 {
     @apply text-lg text-[var(--theme-h6)];
-
-    &::before {
-      @apply mr-2 content-['######'];
-    }
 
     .heading-anchor svg {
       @apply size-4.5;
@@ -288,11 +264,23 @@ article img {
   }
 
   li {
-    @apply pl-2 my-4 marker:text-[var(--theme-li)] marker:-left-5;
+    @apply pl-2 my-1 marker:text-[var(--theme-li)] marker:-left-5;
+  }
+
+  ul ul,
+  ol ol {
+    @apply my-1;
+  }
+
+  ul ul li,
+  ol ol li {
+    @apply my-0;
   }
 
   ul li {
-    @apply marker:content-['-'];
+    @apply marker:content-['•'] marker:mr-0;
+    text-indent: -0.5em;
+    padding-left: 0.5em;
   }
 
   ol li {
