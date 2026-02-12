@@ -1,37 +1,31 @@
 ---
-import { Image } from 'astro:assets'
-import type { FrontmatterImage } from '../types'
-
 interface Props {
-  avatarImage?: FrontmatterImage
+  content: string
 }
-const { avatarImage } = Astro.props
+
+const { content } = Astro.props
+
+// Simple markdown to HTML conversion for basic formatting
+function markdownToHtml(markdown: string): string {
+  return markdown
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^- (.*$)/gim, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(.*)$/gm, '<p>$1</p>')
+    .replace(/<p><\/p>/g, '')
+    .replace(/<p><ul>/g, '<ul>')
+    .replace(/<\/ul><\/p>/g, '</ul>')
+}
+
+const htmlContent = markdownToHtml(content)
 ---
 
-<div class="my-6">
-  <div
-    class="flex flex-col sm:flex-row items-center justify-around sm:gap-5 max-w-full mb-6"
-  >
-    {
-      avatarImage && (
-        <Image
-          src={avatarImage.src}
-          alt={avatarImage.alt}
-          class="rounded-full border-8 border-accent/15 size-40 aspect-square"
-        />
-      )
-    }
-    <div>
-      <div class:list={['m-4 max-w-full prose']}>
-        <slot />
-      </div>
-    </div>
+<div
+  class="relative text-foreground/90 bg-foreground/6 px-8 py-6 w-full rounded-xl border-3 border-accent/10 mb-6 mt-10"
+>
+  <div class="prose prose-sm max-w-none">
+    <div set:html={htmlContent} />
   </div>
 </div>
-
-<style is:global>
-  .github-calendar rect {
-    stroke: var(--theme-foreground) !important;
-    stroke-opacity: 0.1 !important;
-  }
-</style>

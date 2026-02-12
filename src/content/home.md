@@ -1,5 +1,6 @@
 ---
 githubCalendar: 'codeinaire'
+bannerContent: "I'm available for freelance work, please contact me on john@asyncadventures.com\n
+All posts typed by human hands with thoughts from a human brain. 
+"
 ---
-
-Welcome to the example site. This site is meant to show off my custom Astro theme/template **MultiTerm** which creates a coder-ready blog complete with an interactive theme changer, RSS, sitemap, tagging, and markdown extensions.
