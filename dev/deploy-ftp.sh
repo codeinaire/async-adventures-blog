@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+# TODO - find a way to only upload the changed files
 # Upload the contents of the local dist directory to an FTP server.
 #
 # Defaults:

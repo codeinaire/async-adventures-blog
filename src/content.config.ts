@@ -33,6 +33,7 @@ const homeCollection = defineCollection({
         })
         .optional(),
       githubCalendar: z.string().optional(), // GitHub username for calendar
+      bannerContent: z.string().optional(), // Banner content for the top of the page
     }),
 })
 
