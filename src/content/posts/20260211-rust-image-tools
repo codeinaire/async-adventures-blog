@@ -1,0 +1,137 @@
+---
+title: Rust Based Image Converter Site
+published: 2026-02-11
+description: Faux vibe coding a local app that trackers the cost of using claude code
+tags:
+  [
+    'developers',
+    'productivity',
+    'claude code',
+    'rust',
+    'web assembly',
+    'artificial intelligence',
+    'vibe coding',
+    'utility',
+  ]
+---
+
+## TLDR
+
+## Intro
+
+When I decided to learn to software development I took the popular Harvard CS50 course online. I enjoyed it up until I wracked my brain learning about pointers in C. Mercifully, around the same time I started a web development bootcamp and I was too busy to finish the CS50 course. However, since my exposure to C I'd wanted to learn a system-level language. I thought it was cool to have such low level control over memory, hardware, and performance.
+
+Enter Rust. I'd been curious about the language ever since I heard about it. I read it was performant, memory safe, and, for a system-level language, surprisingly developer friendly. Win! But the learning curve was steep. At another point in my career I learnt about WebAssembly and was impressed when I saw [Unreal Tournament being run in the browser at native speeds](https://www.youtube.com/watch?v=BV32Cs_CMqo). This made me want to do something with WebAssembly as well.
+
+But what could I do!?
+
+These two ideas bubbled away in my unconscious for a while until one day I was using an image converting tool on the web and noticed how slow it was. I assumed the image was uploaded to a server, converted, and sent back to the user. Surely, there was a better, faster way? And there was. Well, is! A fateful union of Rust and WebAssembly can birth a site that'll do the conversion locally, therefore cutting out all the uploading and downloading business!
+
+Huzzah!
+
+## Make it Code
+
+About 8 months ago I researched and found a Rust crate that could handle all the image conversion and started to implement the idea using Cursor. At the same time I was working through the [Rust handbook](https://doc.rust-lang.org/book/title-page.html) though I didn't get very far. The version of Cursor and the models I was using, mainly Claude's, seem to struggle to implement the Rust code. Also, I was still learning the best way to use code writing AIs, was too focused on conversion speed, and converting images 1 GB and over to get very far. I didn't finish it.
+
+Recently, I had free time on my hands and wanted to test out Claude Code (CC). I'd finished an [MVP version of a CC usage tracker](https://asyncadventures.com/posts/20260206-claude-code-tracker/) and decided to my next project would be the image conversion site.
+
+## Faux Vibe Code
+
+The CC usage tracker was entirely vibe coded, I barely looked at the code and didn't plan anything. The platform worked but when I did look at the code I realised it could do with some refactoring. There was no database ORM so the database queries were all written in SQL and they could be better organised and decomposed. Also, the frontend code could've done with more organising and simplification. But I consciously choose to vibe code.
+
+However, for the image conversion tool I wanted to do a bunch of work creating a detailed plan about what to implement and how to implement it. This way I could work out edgecases, MVP features, features for future iterations, the capabilities and limitations of WebAssembly, unit testing, integration testing, validation testing, analytics, benchmarking, and even an SEO strategy. Doing it this way gave me a clear overview and helped me to better understand what was involved.
+
+For example, this is how I decided the constraints on a file to convert. It'd be a maximum of 200 MB file size and 100 megapixels. This covers a wide range of photo from phones, DSLRS, and some highend cameras. However, CC didn't offer this information without prompting. I went through a process of exploring the various boundry conditions that could impact the conversion of a file. In my first attempt using Cursor I was able to convert files in the GB range using the Rust backend. But working with Rust in the WebAssembly environment brought up constraints not seen in Rust environment such as the [4 GB of memory available to the WebAssembly sandbox](https://webassembly.org/news/2025-09-17-wasm-3.0/) (now it can be up to 16 GB though this isn't supported by Safari atm).
+
+This was important information that I don't think I would have gotten through strict vibe coding. It helped CC implemented the most effective conversion functionality for the MVP and it's improtant information that I surfaced to the end-user so they know exactly what files they can convert.
+
+## Decomposing the Plan
+
+I probably could've started the implementation with the whole plan though I'm not sure how long it would've taken CC to implement and if it could've done it all in one session. I'm also still support fundamental software development practicies like small, easy-to-understand PRs and doing it all at once pushes against that. This is why I decided to get CC to break the plan down into smaller plans that could fit into an easily understandable and reviewable PR. CC decomposed the big plan into 11 plan documents. I created a CC command called `store-plan` that CC could used to store a plan that was being created.
+
+A command is similar to a skill though if a skil and command have the same name the skill takes precedence because the commands folder has been superceded by the skills folder, [as per Anthropic's the docs](https://code.claude.com/docs/en/skills). It's interesting that CC was the one to recommend creating it in the commands folder instead of the skills, perhaps this update came after the training of the most recent model? :thinking_face:
+
+Another reason I wanted to have mulitple self-contained, bite sized plans was to make it easier to track how long each feature took to implement. I can do this because there's a command in CC that allows a session to be renamed. In my CC usage tracker I surfaced this as a field and filter. That way I can narrow down to either a project and/or session and see the stats for it.
+
+## Personalising Claude Code
+
+The `store-plan` command is touching on the many ways to personalise CC. But before I get into that here are some of the other skills/commands I added (viewable in the `.claude/commands` folder):
+
+- `store-decision`: creates a markdown file with information about important decisions made in the implementation. I wanted this so I could understand the evolution of the project but it might also be useful for CC later.
+- `store-resource`: there's a lot of new content I was learning so I added this skill to add relevanted learnt content in the context in which I learnt it in case I need to refresh.
+- `start-plan`: a simple skill/command that trggered starting a plan and updating the plan document when it was done.
+
+Another way to presonalise [CC is through memories](https://code.claude.com/docs/en/memory). They can be added in various different places and are automatically loaded in full (except for the auto-memory which loads only the first 200 lines) when the CC session starts. Check out the full list of places you can [have a CC memory](https://code.claude.com/docs/en/memory#determine-memory-type). They have various purposes and use cases depending on how you are using CC.
+
+For this project I only put a `CLAUDE.md` in the root of the project. I used it for Rust and TypeScript coding conventions, naming, error handling, code structure and organisation, etc. This might be something to add to the Managed Policy memory in the `/Library/Application Support/ClaudeCode/CLAUDE.md` folder if I use a particular programming language in all my projects.
+
+I don't really know how well this memory worked as I'm not at all familiar with Rust coding conventions and how to tell "good" Rust code from "bad" Rust code. But the Rust code is readable and understandable in spite of my limited Rust knowledge. However, I still think it's hard to determine its quality because the amount of Rust application code is not a lot. I wonder how this memory would handle a bigger Rust codebase.
+
+I personalised CC as needed while working on this project. In parallel I'd update the CC usage tracker as I validated it using this project. I hadn't added any skills and, not surprisingly, it was more cumbersome to work with. I added a plan skill to bring it into line with what I'm doing with this project. However, I think it'd be helpful in future projects to think through what would be needed in the skills and what's common that could be added to [shared skills](https://code.claude.com/docs/en/skills#where-skills-live) and memories.
+
+## Putting My Claude Code Tracker to Use
+
+I like data. That's why I created the CC usage tracker first so I can get hard stats about what costs what.
+
+Below is how much it cost CC to create this very basic image conversion tool. I'm on the CC Pro Plan subscription and Anthropic provides no usage tracking except for rate limiting every 4 hours and over the week. Because of this I'm using API pricing to estimate how much usage cost's. I've also added subscription vs API costs to see, if I used the API pricing, how much I'll be saving by using the subscription over the API.
+
+| Category                     | Metric               | Value    | Detail                                                     |
+| ---------------------------- | -------------------- | -------- | ---------------------------------------------------------- |
+| **Input Token Stats**        | Total Input Tokens   | 50.29M   |                                                            |
+|                              | Input Tokens         | 38.4K    | Base input tokens                                          |
+|                              | Cache Write Tokens   | 1.72M    | 125% of input price                                        |
+|                              | Cache Read Tokens    | 48.53M   | 10% of input price                                         |
+| **Cost Stats**               | Estimated Cost       | $22.11   | $150.68 without caching                                    |
+|                              | Money Saved          | $128.57  | 85.3% cheaper via caching                                  |
+|                              | Cache Hit Rate       | 96.6%    | 48.53M reads / 50.25M total cached                         |
+|                              | Cache Efficiency     | 96.5%    | Of all input served from cache                             |
+| **Misc**                     | Output Tokens        | 110.0K   |                                                            |
+|                              | Total Messages       | 1.0K     |                                                            |
+|                              | Total Hours          | 16h 53m  | Claude: 2h 13m · You: 14h 41m                              |
+|                              | Sessions             | 24       | 2026-02-11 to 2026-02-19                                   |
+| **Subscription vs API Cost** | Pro ($20.00/mo)      | +$2.11   | Saved vs API over 1 month (API: $22.11 vs Sub: $20.00)     |
+|                              | Max 5X ($100.00/mo)  | -$77.89  | Overpaid vs API over 1 month (API: $22.11 vs Sub: $100.00) |
+|                              | Max 20X ($200.00/mo) | -$177.89 | Overpaid vs API over 1 month (API: $22.11 vs Sub: $200.00) |
+
+Now to the data!
+
+According to the stats, this project cost me $22 to build. I didn't count the cost of the domain name and I also missed out on minor help with setting up Cloudflare Pages. It's also wild to me that 48.53 million tokens out of 50.39 million were read from the cache. It'd be interesting to understand how that worked as that's a huge cost saving there. If I did use the API I'd have to [take care of caching myself (as in what to cache)](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) but with the subscription that automatically takes care of itself. I think this is another benefit to using a subscription for personal/professional coding use.
+
+There was only 110k output tokens. I did a count of the lines of code in this codebase and it totaled to ~2,854. This is 2.5% of the 110k output. According to Claude the rest of the output tokens were:
+
+- Reading files back to you
+- Iterative code generation
+- Planning and architecture discussions
+- Error debugging
+- Explanations
+- Test writing
+- Plans/decisions
+
+Another thing to note is that it took me ~17h to build this. I did this over the course of about 5 days though it probably could've been done in two. However, I built it in 4 hour increments as I didn't want to go to the higher subscription tier just yet and wanted to see what I could get from the base subscription first. Though if I did have a higher tier I probably would've blasted through it faster due simply to the fact I would'nt have been rate limited.
+
+It's hard to estimate how long this project would've taken me if I didn't use CC. I know for a 1000% certain fact that it would've taken me longer than ~17h! Perhaps, at least weeks. I think the biggest hurdle would've been learning Rust though through that process I would've gain a deeper understanding and knowledge of Rust whereas now I feel like I've a fragile and superficial understanding. I can read through the code and have a vague sense of what each line of code does but it'd be difficult for me to write it myself and to explain it in detail.
+
+On the flip side I feel more likely to use Rust in the future because of CC. If I do I'd read over the code and, through that, get a better understanding of Rust like I did with this project. But I don't think that can replace the process of writing the code myself and having to deal with compilation errors, fixing them, and various other brain straining challenges that come with writing code.
+
+It seems this is the price we pay for developing with CC. There's a massive increase in speed at the cost of understanding and depth.
+
+## Conclusion
+
+This was a fun project to build and [deploy online](https://imagetoolz.app/). I plan to add more features based on the functionality provided by the `image` crate. It'll be interesting to see how the addition of each new functionality increases the complexity and readability of the code. Also, I want to update the `CLAUDE.md` document to fill out coding conventions, amongst other changes.
+
+I also want to experiment with orchestartion frameworks such as these:
+
+- https://github.com/gsd-build/get-shit-done?tab=readme-ov-file
+- https://github.com/Agile-V/agile_v_skills
+- https://github.com/autarch-dev/autarch?tab=readme-ov-file
+- https://github.com/steveyegge/gastown
+
+I want t start with GSD as it uses a CC subscription and seems to require minimal to no learning of how to use the framework. I'd like to use it to refactor the frontend code into React as I think that'll be easier to implement the more complicated features that the `image` [crate can surface](https://crates.io/crates/image) like blur, brighten, flip, contrast, crop, etc. Though I'd also like to create a new app with it to test its capabilities out.
+
+The other frameworks seems to require more upfront learning, which may increase their effectiveness, or have high usage, like Gastown.
+
+Something I've noticed by using CC for the past couple of weeks is how quickly I've adopted it and how little resistance I have to using it. In fact, I'd say I'm having fun. I had fun writing code by my own hands and also more pride in my work, a kind of artisan pride. It's not like I don't have pride when using CC but it's something that doesn't even factor into the process as I've not written any of the code.
+
+But on the flip side, I've be able to more thoroughly explore the problem space in a clear, open way before using CC. It's especially useful with keeping in the flow while doing this and getting immediate feedback when spitballing as opposed to having an idea and having to research it manually if I didn't have my own answers or intuition for it. That makes it much easier to develop a more comprehensive plan with future versions in mind as well. I've never been at a company that uses the [waterfall method](https://en.wikipedia.org/wiki/Waterfall_model) but I wonder if this process is similar to it.
+
+Overall, I'm enjoying CC and look forward to using it in the future. I still have insecurity about the value of my skills as a developer but I might as well enjoy it while I can. 😅
