@@ -58,6 +58,10 @@ npm run dev
 npm run build && npx serve dist
 ```
 
+## To Deploy
+
+Run `./scripts/deploy-ftp.sh --insecure`
+
 ## 🛠️ Configuration
 
 Simple configuration is a core feature of MultiTerm. All configuration is done from a single file: `src/site.config.ts`. This is where you can tailor your website to match your vision.
