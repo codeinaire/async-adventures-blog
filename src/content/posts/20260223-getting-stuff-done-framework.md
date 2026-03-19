@@ -1,7 +1,7 @@
 ---
 title: GSD - An AI Orchestration Tool
 published: 2026-03-10
-description: Exploring GSD by building out a simple RSVP browser extension and PWA
+description: Exploring GSD by building out a simple RSVP browser extension an
 tags:
   [
     'developers',
@@ -89,7 +89,7 @@ After that it went onto researching the project itself which it fed into the def
 
 Below is the estimated cost. I had a feeling it was costing more compared to the [Rust Based Image Converter Site](https://asyncadventures.com/posts/20260211-rust-image-tools/) project. All the steps in the loop ran for much longer and the more phases the longer each proceeding phase took. I was just guesstimating this based on how long I remembered CC ran for different plans and how quickly my subscription allocation was chewed up in the image converter project. As the numbers below show, my guesstimating was correct.
 
-If I want to distill it into one metric I'd choose the all mighty dollar. This project cost $46.87 while the image converter project cost $22.11.
+If I want to distill it into one metric I'd choose the all mighty dollar. This project cost `$46.87` while the image converter project cost `$22.11`.
 
 That's 2.11x more!
 

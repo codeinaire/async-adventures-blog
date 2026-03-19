@@ -11,11 +11,13 @@ tags:
     'web assembly',
     'artificial intelligence',
     'vibe coding',
-    'utility',
+    'utility'
   ]
 ---
 
 ## TLDR
+
+I Claude Coded an [image conversion website](https://imagetoolz.app/) using Rust, WebAssembly, and TypeScript. It converts locally, superfast, and in private. Using Claude Code sped up the process and, according to stats gathered by my [Claude Code usage tracker](https://github.com/codeinaire/claude-code-usage-tracker), I completed it in ~17h at the cost of ~$22. [Claude Code skills](https://code.claude.com/docs/en/skills) made it easier to store and implement plans, document decisions, and resources while [Claude Code memories](https://code.claude.com/docs/en/memory) helped to maintain coding conventions.
 
 ## Intro
 
