@@ -1,0 +1,48 @@
+---
+// src/components/StatusBar.astro
+//
+// Top-of-page status bar. Renders the site brand on the left (with an
+// animated pulse dot) and a slotted region on the right for per-page
+// metadata (post counts, signal status, etc.).
+//
+import PulseDot from './PulseDot.astro'
+import siteConfig from '../site.config'
+---
+
+<div class="status-bar">
+  <a href="/" class="brand">
+    <PulseDot />
+    <span class="site-name">{siteConfig.title.toUpperCase().replace(/\s+/g, '.')}</span>
+  </a>
+  <div class="right">
+    <slot name="right" />
+  </div>
+</div>
+
+<style>
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .brand .site-name {
+    color: var(--text);
+    transition: color 0.2s ease-out;
+  }
+  .brand:hover .site-name { color: var(--accent-1); }
+  .right { color: var(--muted); }
+  .right :global(span.amber) { color: var(--accent-3); }
+</style>

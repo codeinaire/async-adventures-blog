@@ -1,76 +1,79 @@
 ---
+// src/components/Header.astro
 import siteConfig from '../site.config'
-import LightDarkAutoButton from './LightDarkAutoButton.astro'
+import StatusBar from './StatusBar.astro'
 import Search from './Search.astro'
-import SelectTheme from './SelectTheme.astro'
-import NavLink from './NavLink.astro'
+import { getCollection } from 'astro:content'
 
-const lightDarkAutoTheme = siteConfig.themes.mode === 'light-dark-auto'
-const selectTheme =
-  siteConfig.themes.mode === 'select' && siteConfig.themes.include.length > 1
+const posts = await getCollection('posts')
+const postCount = posts.length
+const tagSet = new Set<string>()
+for (const p of posts) {
+  for (const t of (p.data.tags ?? []) as string[]) tagSet.add(t.toLowerCase())
+}
+const tagCount = tagSet.size
 ---
 
 <header>
-  <div class="relative flex items-center justify-between bg-accent/10 rounded-xl">
-    <a
-      id="logo"
-      href="/"
-      class="block px-4 py-1.5 max-w-full no-underline items-center bg-accent text-background font-bold rounded-xl"
-    >
-      {siteConfig.title}
-    </a>
-    <div class="flex items-center gap-3 sm:mr-3">
+  <StatusBar>
+    <span slot="right" class="status-right">
+      <span class="muted">// posts · {postCount}</span>
+      <span class="sep">//</span>
+      <span class="muted">tags · {tagCount}</span>
+    </span>
+  </StatusBar>
+  <nav class="nav-row" aria-label="Primary">
+    <ul class="nav-links">
+      {siteConfig.navLinks.map((link) => (
+        <li><a href={link.url}>{link.name.toLowerCase()}</a></li>
+      ))}
+    </ul>
+    <div class="nav-actions">
       <Search />
-      {lightDarkAutoTheme && <LightDarkAutoButton />}
-      {selectTheme && <SelectTheme />}
-      <nav id="nav-mobile" aria-label="Menu" class="p-0 text-accent sm:hidden">
-        <button
-          id="nav-mobile-button"
-          class="px-3 py-1 h-full cursor-pointer border-2 rounded-xl bg-background"
-          type="button"
-          aria-expanded="false"
-          aria-controls="nav-menu-list"
-        >
-          ▾
-        </button>
-        <ul
-          id="nav-mobile-list"
-          class="invisible absolute flex flex-col bg-background shadow text-accent border-2 m-0 p-2.5 top-11.5 left-auto right-0 z-50 rounded-xl"
-        >
-          {
-            siteConfig.navLinks.map((link) => (
-              <li class="p-1" aria-expanded="false">
-                <NavLink link={link} />
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+      <a href="/rss.xml" aria-label="RSS feed" class="rss-link">rss</a>
     </div>
-  </div>
+  </nav>
 </header>
 
-<script>
-  const navMobileButton = document.getElementById('nav-mobile-button')
-  const navMobileList = document.getElementById('nav-mobile-list')
-  const navMobileListItems = navMobileList?.querySelectorAll('li')
-  const toggleNavMobileMenu = (action: 'on' | 'off' | 'toggle') => {
-    let isNowOpen: boolean = false
-    if (action === 'on') {
-      isNowOpen = true
-      navMobileList?.classList.remove('invisible')
-    } else if (action === 'off') {
-      isNowOpen = false
-      navMobileList?.classList.add('invisible')
-    } else {
-      isNowOpen = !navMobileList?.classList.toggle('invisible')
-    }
-    navMobileButton?.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false')
-    navMobileListItems?.forEach((listItem) => {
-      listItem.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false')
-    })
+<style>
+  header { grid-area: header; margin-bottom: 1.5rem; }
+  .status-right { display: inline-flex; gap: 0.5rem; align-items: center; }
+  .status-right .muted { color: var(--muted); }
+  .status-right .sep { color: var(--border-strong); }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
-  navMobileButton?.addEventListener('click', (_ev) => {
-    toggleNavMobileMenu('toggle')
-  })
-</script>
+  .nav-links {
+    display: flex;
+    gap: 1.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s ease-out;
+  }
+  .nav-links a:hover { color: var(--accent-2); }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .rss-link {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s ease-out;
+  }
+  .rss-link:hover { color: var(--accent-3); }
+</style>

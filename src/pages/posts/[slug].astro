@@ -1,12 +1,12 @@
 ---
+// src/pages/posts/[slug].astro
 import type { GetStaticPaths } from 'astro'
 import Layout from '@layouts/Layout.astro'
 import { dateString, getSortedPosts } from '@utils'
-import PostPreview from '@components/PostPreview.astro'
-import DividerText from '@components/DividerText.astro'
 import { getCollection, render } from 'astro:content'
 import TableOfContents from '@components/TableOfContents.astro'
 import TLDR from '@components/TLDR.astro'
+import MyceliumCover from '@components/MyceliumCover.astro'
 import { Image } from 'astro:assets'
 
 export const getStaticPaths = (async () => {
@@ -14,72 +14,217 @@ export const getStaticPaths = (async () => {
   return posts.map((post, index) => {
     const validPrev = index > 0
     const validNext = index < posts.length - 1
-    const prev = validPrev ? posts[index - 1] : undefined
-    const next = validNext ? posts[index + 1] : undefined
     return {
       params: { slug: post.id },
-      props: { post, prev, next },
+      props: {
+        post,
+        prev: validPrev ? posts[index - 1] : undefined,
+        next: validNext ? posts[index + 1] : undefined,
+      },
     }
   })
 }) satisfies GetStaticPaths
 
 const { post, prev, next } = Astro.props
 const postData = post.data
-const { headings, Content: PostContent } = await render(post)
-const addendum = await getCollection('addendum')
-
-const tldrContent = postData.tldr
-let AddendumContent
-let addendumAvatarImage
-if (addendum.length > 0) {
-  const addendumEntry = addendum[0]
-  const { Content } = await render(addendumEntry)
-  AddendumContent = Content
-  addendumAvatarImage = addendumEntry.data.avatarImage
-}
+const { headings, Content: PostContent, remarkPluginFrontmatter } = await render(post)
+const readingTime: string =
+  (remarkPluginFrontmatter as { minutesRead?: string } | undefined)?.minutesRead ?? '?'
+const readingMin = parseInt(String(readingTime).match(/\d+/)?.[0] ?? '?', 10) || readingTime
 ---
 
 <Layout
   title={postData.title}
   description={postData.description}
   author={postData.author}
-  tags={postData.tags}
+  tags={postData.tags as string[] | undefined}
 >
-  <Fragment slot="sidebar">
-    {headings.length > 0 && <TableOfContents headings={headings} />}
-  </Fragment>
-  <article class="max-w-full py-7.5" data-pagefind-body>
-    {
-      postData.coverImage && (
-        <Image
-          src={postData.coverImage.src}
-          alt={postData.coverImage.alt}
-          class="w-full rounded-xl mb-5"
-        />
-      )
-    }
-    <div class="flex items-center justify-between mb-3">
-      <h1 class="text-3xl text-[var(--theme-h1)] font-semibold">
-        {postData.title}
-      </h1>
-      <div class="text-foreground/80 text-sm">
-        <time class="text-lg">{dateString(postData.published)}</time>
-        {
-          postData.author && (
-            <span class="before:content-['::'] before:inline-block before:mx-0.5">
-              {postData.author}
-            </span>
-          )
-        }
+  <article data-pagefind-body>
+    <div class="header-strip">
+      <span class="label">▙ FIELD NOTE&nbsp;<span class="sep">//</span> <span class="value">{readingMin} MIN</span></span>
+    </div>
+
+    <div class="cover-wrap clip-md">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      {postData.coverImage ? (
+        <Image src={postData.coverImage.src} alt={postData.coverImage.alt} class="cover-img" />
+      ) : (
+        <MyceliumCover slug={post.id} />
+      )}
+    </div>
+
+    <div class="title-block">
+      <h1 class="title">{postData.title.toLowerCase()}</h1>
+      <div class="meta-row">
+        <span>{dateString(postData.published)}</span>
+        <span class="sep">::</span>
+        <span class="author">{(postData.author ?? 'JOHN STEWART').toUpperCase()}</span>
+      </div>
+      {postData.tags && postData.tags.length > 0 && (
+        <div class="tag-row">
+          {(postData.tags as string[]).map((t) => (
+            <span class="tag">#{t.toLowerCase()}</span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class={`content-grid${headings.length > 0 ? '' : ' no-toc'}`}>
+      {headings.length > 0 && <TableOfContents headings={headings} />}
+      <div class="prose">
+        {postData.tldr && <TLDR content={postData.tldr} />}
+        <PostContent />
       </div>
     </div>
-    {tldrContent && <TLDR content={tldrContent} />}
-    <!-- <hr class="border-accent/10 border-2 rounded-xl hidden lg:block" /> -->
-    <div class="mb-5 prose">
-      <PostContent />
-    </div>
   </article>
-  {(prev || next) && <DividerText text="More Posts" />}
-  {prev && <PostPreview post={prev} />}
-  {next && <PostPreview post={next} />}
+
+  {(prev || next) && (
+    <nav class="prev-next" aria-label="Adjacent posts">
+      {prev && (
+        <a href={`/posts/${prev.id}`} class="nav-card">
+          <span class="nav-label">← PREVIOUS</span>
+          <span class="nav-title">{prev.data.title.toLowerCase()}</span>
+        </a>
+      )}
+      <span />
+      {next && (
+        <a href={`/posts/${next.id}`} class="nav-card next">
+          <span class="nav-label">NEXT →</span>
+          <span class="nav-title">{next.data.title.toLowerCase()}</span>
+        </a>
+      )}
+    </nav>
+  )}
 </Layout>
+
+<style>
+  article { margin: 0; padding: 0; }
+
+  .header-strip {
+    padding: 1rem 0 0.6rem;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 1rem;
+  }
+  .label {
+    color: var(--accent-3);
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .label .sep { color: var(--border-strong); padding: 0 0.5rem; }
+  .label .value { color: var(--text); }
+
+  .cover-wrap {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--border-strong);
+    margin-bottom: 1rem;
+  }
+  .cover-wrap :global(svg),
+  .cover-wrap :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    border: 2px solid var(--accent-1);
+    z-index: 2;
+    filter: drop-shadow(0 0 4px var(--glow-aqua-strong));
+  }
+  .corner.tl { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+  .corner.tr { top: 6px; right: 6px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 6px; left: 6px; border-right: none; border-top: none; }
+  .corner.br { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+
+  .title-block { margin: 1.25rem 0 1rem; }
+  .title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: var(--accent-1);
+    text-shadow: 0 0 10px var(--glow-aqua), 0 0 28px var(--glow-aqua-soft);
+    margin: 0;
+    font-weight: 400;
+  }
+  .meta-row {
+    color: var(--accent-2);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    margin-top: 0.85rem;
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta-row .sep { color: var(--border-strong); }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+  }
+  .tag-row .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border: 1px solid var(--border);
+    color: var(--accent-2);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 1.4rem;
+    margin-top: 0.5rem;
+  }
+  .content-grid.no-toc { grid-template-columns: minmax(0, 1fr); }
+  .content-grid > .prose { min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+  @media (max-width: 768px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .content-grid > :global(.toc) { display: none; }
+  }
+
+  .prev-next {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    border-top: 1px dashed var(--border);
+    padding-top: 1rem;
+  }
+  .nav-card {
+    display: block;
+    padding: 0.75rem 1rem;
+    background: rgba(10, 24, 40, 0.5);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+    transition: border-color 0.2s ease-out;
+  }
+  .nav-card:hover { border-color: var(--accent-2); }
+  .nav-card.next { text-align: right; }
+  .nav-card .nav-label {
+    display: block;
+    color: var(--accent-3);
+    font-size: 0.625rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+  .nav-card .nav-title {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--text);
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+</style>

@@ -1,37 +1,81 @@
 ---
-import type { GetStaticPaths } from 'astro'
+// src/pages/tags/[tag]/[...page].astro
+import type { GetStaticPaths, Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
 import Layout from '@layouts/Layout.astro'
 import { getSortedPosts } from '@utils'
-import PostPreviewsWithYear from '@components/PostPreviewsWithYear.astro'
+import PostPreview from '@components/PostPreview.astro'
 import Pagination from '@components/Pagination.astro'
-import BlockHeader from '@components/BlockHeader.astro'
 import siteConfig from '../../../site.config'
 
-// Note: Pagination like '/', '/2', '/3' only works with spread param like [...page]
 export const getStaticPaths = (async ({ paginate }) => {
-  const sortedPosts = await getSortedPosts()
-  const allTags = new Set(sortedPosts.flatMap((post) => post.data.tags))
-  // flatMap is necessary here to lift paginate lists into top-level list
-  const pages = [...allTags].flatMap((tag) => {
-    const postsWithTag = sortedPosts.filter((post) => {
-      return new Set(post.data.tags).has(tag)
+  const allPosts = await getSortedPosts()
+  const tagSet = new Set<string>()
+  for (const p of allPosts) {
+    for (const t of (p.data.tags ?? []) as string[]) tagSet.add(t.toLowerCase())
+  }
+  return Array.from(tagSet).flatMap((tag) => {
+    const tagPosts = allPosts.filter((p) =>
+      (p.data.tags ?? []).map((t: string) => t.toLowerCase()).includes(tag),
+    )
+    return paginate(tagPosts, {
+      params: { tag },
+      pageSize: siteConfig.pageSize * 2,
+      props: { tag, totalForTag: tagPosts.length },
     })
-    return paginate(postsWithTag, { params: { tag }, pageSize: siteConfig.pageSize })
   })
-  return pages
 }) satisfies GetStaticPaths
 
-const { page } = Astro.props
-const { tag } = Astro.params
+interface ExtraProps { tag: string; totalForTag: number }
+const { page } = Astro.props as { page: Page<CollectionEntry<'posts'>> }
+const { tag, totalForTag } = Astro.props as unknown as ExtraProps
 ---
 
-<Layout>
-  <BlockHeader>#{tag}</BlockHeader>
-  <PostPreviewsWithYear posts={page.data} />
+<Layout title={`#${tag} · Tag`}>
+  <section class="tag-hero">
+    <div class="label">▙ TAG · #{tag}</div>
+    <h1 class="title">#{tag}</h1>
+    <p class="sub">{totalForTag} transmission{totalForTag === 1 ? '' : 's'}</p>
+  </section>
+
+  <section class="feed">
+    {page.data.map((p) => <PostPreview post={p} />)}
+  </section>
+
   <Pagination
-    prevLink={page.url.prev ? encodeURI(page.url.prev) : undefined}
-    prevText="Newer Posts"
-    nextLink={page.url.next ? encodeURI(page.url.next) : undefined}
-    nextText="Older Posts"
+    prevLink={page.url.prev}
+    prevText={page.currentPage === 2 ? 'first page' : `page ${page.currentPage - 1}`}
+    nextLink={page.url.next}
+    nextText={page.currentPage < page.lastPage ? `page ${page.currentPage + 1}` : undefined}
   />
 </Layout>
+
+<style>
+  .tag-hero {
+    padding: 2rem 0 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+  .label {
+    color: var(--accent-3);
+    font-size: 0.625rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.05;
+    letter-spacing: 0.04em;
+    color: var(--accent-1);
+    text-shadow: 0 0 10px var(--glow-aqua), 0 0 28px var(--glow-aqua-soft);
+    margin: 0.5rem 0 0.4rem;
+    font-weight: 400;
+  }
+  .sub {
+    color: var(--accent-2);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    margin: 0;
+  }
+</style>

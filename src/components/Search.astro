@@ -5,21 +5,21 @@ import { Icon } from 'astro-icon/components'
 
 <site-search class="ms-auto" id="search">
   <button
-    class="hover:text-accent flex cursor-pointer items-center justify-center rounded-md"
+    class="search-trigger flex cursor-pointer items-center justify-center"
     aria-keyshortcuts="Control+K Meta+K"
     data-open-modal
     disabled
   >
-    <Icon name="search" class="size-6 text-accent" />
+    search
     <span class="sr-only">Open Search</span>
   </button>
   <dialog
     aria-label="search"
-    class="text-foreground! bg-background max-h-5/6 min-h-48 w-7/8 sm:w-5/6 max-w-xl border-double! border-4 border-accent/30 shadow-sm backdrop:backdrop-blur-sm open:flex mx-auto mt-10 sm:mt-16 mb-auto rounded-xl"
+    class="search-modal clip-md max-h-5/6 min-h-48 w-7/8 sm:w-5/6 max-w-xl shadow-sm backdrop:backdrop-blur-sm open:flex mx-auto mt-10 sm:mt-16 mb-auto"
   >
     <div class="dialog-frame flex grow flex-col gap-4 p-6 pt-6 max-w-full">
       <button class="cursor-pointer fixed top-2 right-2 rounded-full" data-close-modal>
-        <Icon name="circle-x" class="size-6 text-accent/50" />
+        <Icon name="circle-x" class="size-6" style="color: var(--accent-2);" />
       </button>
       {
         import.meta.env.DEV ? (
@@ -42,11 +42,11 @@ import { Icon } from 'astro-icon/components'
 <style is:global>
   :root {
     --pagefind-ui-font: inherit;
-    --pagefind-ui-primary: var(--theme-accent);
-    --pagefind-ui-text: var(--theme-foreground);
-    --pagefind-ui-background: var(--theme-background);
-    --pagefind-ui-border: var(--theme-accent);
-    --pagefind-ui-border-width: 2px;
+    --pagefind-ui-primary: var(--accent-2);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--border);
+    --pagefind-ui-border-width: 1px;
   }
 
   .pagefind-ui__results-area {
@@ -61,8 +61,8 @@ import { Icon } from 'astro-icon/components'
   }
 
   .pagefind-ui__result-inner mark {
-    background-color: var(--theme-accent) !important;
-    color: var(--theme-background) !important;
+    background-color: var(--accent-2) !important;
+    color: var(--bg) !important;
     font-weight: 600 !important;
     padding: 0 3px !important;
     border-radius: 6px !important;
@@ -72,9 +72,43 @@ import { Icon } from 'astro-icon/components'
     content: '>' !important;
     left: -16px !important;
     right: unset !important;
-    color: var(--theme-accent) !important;
+    color: var(--accent-2) !important;
     font-weight: 600 !important;
   }
+</style>
+
+<style>
+  .search-trigger {
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s ease-out;
+  }
+  .search-trigger:hover { color: var(--accent-2); }
+
+  .search-modal {
+    background: var(--panel);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+  }
+  .search-modal :global(.pagefind-ui__search-input) {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+  .search-modal :global(.pagefind-ui__result-link) {
+    color: var(--accent-1);
+    text-decoration: none;
+  }
+  .search-modal :global(.pagefind-ui__result-link:hover) {
+    text-shadow: 0 0 6px var(--glow-aqua);
+  }
+  .search-modal :global(.pagefind-ui__result-excerpt) { color: var(--muted); }
 </style>
 
 <script>

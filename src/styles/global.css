@@ -1,7 +1,8 @@
+/* src/styles/global.css */
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
 
-/* https://fontsource.org/fonts/jetbrains-mono/install */
-/* jetbrains-mono-latin-wght-normal */
+/* ---------- Local fonts ---------- */
 @font-face {
   font-family: 'JetBrains Mono Variable';
   font-style: normal;
@@ -14,400 +15,296 @@
     U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* ---------- Bioluminescent Abyss palette ---------- */
+:root {
+  --bg: #060f1c;
+  --panel: #0a1828;
+  --border: #152840;
+  --border-strong: #1f3550;
+  --accent-1: #7fffd4;        /* aquamarine */
+  --accent-2: #5ec8ff;        /* cyan */
+  --accent-3: #ffce5e;        /* firefly amber */
+  --text: #e8f0f5;
+  --muted: #5a7a8a;
+
+  --glow-aqua-soft: rgba(127, 255, 212, 0.18);
+  --glow-aqua: rgba(127, 255, 212, 0.4);
+  --glow-aqua-strong: rgba(127, 255, 212, 0.6);
+  --glow-cyan-soft: rgba(94, 200, 255, 0.18);
+  --glow-cyan: rgba(94, 200, 255, 0.4);
+
+  --font-display: 'Major Mono Display', 'JetBrains Mono Variable', monospace;
+  --font-body: 'JetBrains Mono Variable', 'Courier New', monospace;
+}
+
+/* ---------- Tailwind theme bridge ---------- */
 @theme {
-  --color-accent: var(--theme-accent);
-  --color-foreground: var(--theme-foreground);
-  --color-background: var(--theme-background);
-  --color-blue: var(--theme-blue);
-  --color-green: var(--theme-green);
-  --color-red: var(--theme-red);
-  --color-yellow: var(--theme-yellow);
-  --color-magenta: var(--theme-magenta);
-  --color-cyan: var(--theme-cyan);
-  --default-font-family: var(--theme-font), monospace;
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent-1: var(--accent-1);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --default-font-family: var(--font-body);
 }
 
-header {
-  view-transition-name: none;
-}
+/* ---------- View transitions ---------- */
+header { view-transition-name: none; }
+@view-transition { navigation: auto; }
 
-@view-transition {
-  navigation: auto;
+/* ---------- Base body ---------- */
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
 }
-
 body {
-  @apply transition-colors;
-  font-display: block;
   font-size-adjust: ex-height 0.53;
+  position: relative;
 }
 
-/* hide katex-html */
-.katex-html {
-  @apply hidden;
+/* Scanline overlay — fixed, decorative, always on top */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.022) 2px,
+    rgba(255, 255, 255, 0.022) 3px
+  );
+  pointer-events: none;
+  z-index: 1000;
 }
 
+/* Reduced-motion: keep scanline (it's static), kill animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+}
+
+/* ---------- Typography helpers ---------- */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+.glow {
+  text-shadow:
+    0 0 8px var(--glow-aqua),
+    0 0 24px var(--glow-aqua-soft);
+}
+.glow-soft {
+  text-shadow: 0 0 6px var(--glow-aqua-soft);
+}
+
+.hud-label {
+  color: var(--accent-3);
+  font-size: 0.625rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.hud-label::before {
+  content: '▙ ';
+  color: var(--accent-3);
+}
+
+/* ---------- Cyber-clip utilities ---------- */
+.clip-sm  { clip-path: polygon(8px 0%,  100% 0%, 100% calc(100% - 8px),  calc(100% - 8px)  100%, 0% 100%, 0% 8px); }
+.clip-md  { clip-path: polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px); }
+.clip-lg  { clip-path: polygon(16px 0%, 100% 0%, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0% 100%, 0% 16px); }
+.clip-xl  { clip-path: polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px); }
+
+/* ---------- Pulse animation ---------- */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* ---------- Focus rings ---------- */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 button:focus-visible,
-a:focus-visible,
-input:active,
-textarea:active,
-select:active,
-button:active {
-  @apply outline-1 outline-accent outline-offset-2;
+a:focus-visible {
+  outline: 1px solid var(--accent-1);
+  outline-offset: 2px;
 }
 
-a.button {
-  @apply inline-flex text-accent border-3 border-accent/30 border-double py-1.5 px-3 whitespace-nowrap hover:bg-accent/10 rounded-xl transition-colors;
-}
+button { cursor: pointer; }
 
-header button,
-header input {
-  @apply !outline-none;
-}
-
-button {
-  @apply cursor-pointer;
-}
-
+/* ---------- Article images ---------- */
 article img {
-  @apply block max-w-full border-8 border-foreground/10 rounded-xl overflow-hidden mx-auto;
-
-  &[pixelated='true'] {
-    image-rendering: pixelated;
-  }
+  display: block;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  margin: 1rem auto;
+}
+article img[pixelated='true'] {
+  image-rendering: pixelated;
 }
 
+/* ---------- Prose styles ---------- */
 .prose {
-  @apply text-base/7;
-
-  code:not(.expressive-code code) {
-    @apply text-sm font-mono text-foreground/90 bg-foreground/5 px-2.5 py-1 rounded-lg;
-  }
-
-  div.expressive-code {
-    @apply my-8;
-
-    figure {
-      @apply border-2 border-foreground/8 !rounded-xl;
-      box-shadow: none !important;
-
-      &.has-title,
-      &.is-terminal {
-        --button-spacing: 30px !important;
-      }
-
-      figcaption {
-        border-radius: 10px 10px 0 0 !important;
-        background: transparent !important;
-        padding-block: 0 !important;
-        border: none !important;
-
-        &::after,
-        &::before {
-          border: none !important;
-        }
-
-        span.title {
-          @apply !text-foreground/90 !bg-foreground/8 text-center !border-b-2 !border-t-0 !border-r-0 !border-l-0 !border-foreground/10;
-          width: 100%;
-          font-family: var(--theme-font);
-          font-size: var(--ec-codeFontSize);
-          border-radius: 10px 10px 0 0 !important;
-          border-bottom-width: 0 !important;
-          padding: 0 12px !important;
-
-          &::after,
-          &::before {
-            border: none !important;
-          }
-        }
-      }
-
-      & > pre {
-        border-radius: 10px !important;
-        border: none !important;
-        scrollbar-width: thin;
-        background: transparent !important;
-      }
-    }
-  }
-
-  blockquote,
-  aside {
-    div.expressive-code {
-      @apply my-3;
-    }
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply flex items-center my-6.5 font-semibold;
-
-    span[role='img'] {
-      @apply mx-2.5;
-    }
-
-    .heading-anchor {
-      @apply opacity-0 inline-block text-accent/10 ml-3 transition-opacity;
-    }
-
-    &::before {
-      @apply self-start;
-    }
-
-    &:hover .heading-anchor {
-      @apply !opacity-80;
-    }
-  }
-
-  h1 {
-    @apply text-2xl text-[var(--theme-h1)];
-
-    .heading-anchor svg {
-      @apply size-5.5;
-    }
-  }
-
-  h2 {
-    @apply text-2xl text-[var(--theme-h2)];
-
-    .heading-anchor svg {
-      @apply size-5.5;
-    }
-  }
-
-  h3 {
-    @apply text-xl text-[var(--theme-h3)];
-
-    .heading-anchor svg {
-      @apply size-5;
-    }
-  }
-
-  h4 {
-    @apply text-xl text-[var(--theme-h4)];
-
-    .heading-anchor svg {
-      @apply size-5;
-    }
-  }
-
-  h5 {
-    @apply text-lg text-[var(--theme-h5)];
-
-    .heading-anchor svg {
-      @apply size-4.5;
-    }
-  }
-
-  h6 {
-    @apply text-lg text-[var(--theme-h6)];
-
-    .heading-anchor svg {
-      @apply size-4.5;
-    }
-  }
-
-  p,
-  ul,
-  ol,
-  img,
-  figure,
-  video,
-  table,
-  blockquote,
-  aside {
-    @apply my-6.5;
-  }
-
-  b,
-  strong,
-  th,
-  button {
-    @apply font-semibold;
-  }
-
-  a {
-    @apply text-[var(--theme-a)] underline hover:underline;
-
-    &.heading-anchor {
-      text-decoration: none;
-      color: inherit;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  button {
-    @apply font-bold text-center text-accent py-1 px-4.5 border-4 border-accent rounded-xl cursor-pointer hover:bg-accent/15 transition-colors;
-  }
-
-  figure:not(.expressive-code figure) {
-    @apply block mx-auto rounded-xl py-2;
-
-    figcaption {
-      @apply text-center italic;
-    }
-  }
-
-  ul,
-  ol {
-    @apply ml-9.5;
-  }
-
-  li {
-    @apply pl-2 my-1 marker:text-[var(--theme-li)] marker:-left-5;
-  }
-
-  ul ul,
-  ol ol {
-    @apply my-1;
-  }
-
-  ul ul li,
-  ol ol li {
-    @apply my-0;
-  }
-
-  ul li {
-    @apply marker:content-['•'] marker:mr-0;
-    text-indent: -0.5em;
-    padding-left: 0.5em;
-  }
-
-  ol li {
-    @apply list-decimal;
-  }
-
-  hr {
-    @apply h-0.5 my-16 bg-[var(--theme-hr)] border-none rounded-xl;
-  }
-
-  blockquote {
-    @apply relative bg-foreground/6 rounded-xl py-6 px-8 before:content-['>'] before:block before:absolute before:text-accent before:font-bold before:left-3;
-
-    p:first-child {
-      @apply mt-0;
-    }
-
-    p:last-child {
-      @apply mb-0;
-    }
-  }
-
-  aside {
-    @apply bg-foreground/8 rounded-xl py-6 px-8;
-
-    p:first-child {
-      @apply mt-0;
-    }
-
-    p:last-child {
-      @apply mb-0;
-    }
-
-    p.admonition-title {
-      @apply mb-2 inline-block font-semibold before:content-['>'] before:mr-2;
-    }
-
-    p:not(.admonition-title):first-child {
-      @apply mt-0;
-    }
-
-    &[data-admonition-type='note'] {
-      @apply bg-blue/8;
-
-      p.admonition-title {
-        @apply text-blue;
-      }
-    }
-
-    &[data-admonition-type='tip'] {
-      @apply bg-green/8;
-
-      p.admonition-title {
-        @apply text-green;
-      }
-    }
-
-    &[data-admonition-type='important'] {
-      @apply bg-magenta/8;
-
-      p.admonition-title {
-        @apply text-magenta;
-      }
-    }
-
-    &[data-admonition-type='caution'] {
-      @apply bg-yellow/8;
-
-      p.admonition-title {
-        @apply text-yellow;
-      }
-    }
-
-    &[data-admonition-type='warning'] {
-      @apply bg-red/8;
-
-      p.admonition-title {
-        @apply text-red;
-      }
-    }
-  }
-
-  table,
-  th,
-  td {
-    @apply border-2 border-foreground/80 p-2.5;
-  }
-
-  th {
-    @apply uppercase text-left;
-  }
-
-  fieldset {
-    @apply inline-block border-2 border-accent/80 p-2.5 rounded-xl;
-  }
-
-  fieldset *:first-child {
-    @apply mb-0;
-  }
-
-  fieldset input,
-  fieldset select,
-  fieldset textarea,
-  fieldset label,
-  fieldset button {
-    @apply mt-3 w-full;
-  }
-
-  label {
-    @apply inline-block;
-  }
-
-  label input {
-    @apply mt-0;
-  }
-
-  input,
-  textarea,
-  select {
-    @apply bg-transparent text-foreground border-1 border-foreground p-2.5 rounded-xl;
-  }
-
-  input[type='checkbox'] {
-    @apply w-auto;
-  }
-
-  input[type='submit'] {
-    @apply border-accent cursor-pointer;
-  }
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--text);
 }
+
+.prose p { margin: 0.65rem 0; }
+
+.prose a {
+  color: var(--accent-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-shadow 0.2s ease-out, color 0.2s ease-out;
+}
+.prose a:hover {
+  color: var(--accent-1);
+  text-shadow: 0 0 6px var(--glow-aqua);
+}
+
+.prose strong, .prose b { color: var(--accent-1); font-weight: 700; }
+.prose em, .prose i { color: var(--accent-1); font-style: italic; }
+
+.prose h1, .prose h2 {
+  font-family: var(--font-display);
+  color: var(--accent-1);
+  text-shadow: 0 0 6px var(--glow-aqua-soft);
+  letter-spacing: 0.02em;
+  margin: 1.5rem 0 0.5rem;
+  font-weight: 400;
+}
+.prose h1 { font-size: 1.75rem; line-height: 1.15; }
+.prose h2 { font-size: 1.25rem; line-height: 1.2; }
+
+.prose h3, .prose h4, .prose h5, .prose h6 {
+  font-family: var(--font-body);
+  color: var(--accent-3);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.85rem;
+  margin: 1.25rem 0 0.4rem;
+  font-weight: 700;
+}
+
+.prose h1 .heading-anchor,
+.prose h2 .heading-anchor,
+.prose h3 .heading-anchor,
+.prose h4 .heading-anchor,
+.prose h5 .heading-anchor,
+.prose h6 .heading-anchor {
+  display: inline-flex;
+  margin-left: 0.5rem;
+  opacity: 0;
+  color: var(--accent-2);
+  transition: opacity 0.2s ease-out;
+  vertical-align: middle;
+}
+.prose h1:hover .heading-anchor,
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.prose h4:hover .heading-anchor,
+.prose h5:hover .heading-anchor,
+.prose h6:hover .heading-anchor { opacity: 1; }
+
+.prose ul, .prose ol { padding-left: 1.4rem; margin: 0.6rem 0; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose ul ul { list-style: circle; }
+.prose ul ul ul { list-style: square; }
+.prose li { margin: 0.25rem 0; }
+.prose ul > li::marker { color: var(--accent-1); }
+.prose ol > li::marker { color: var(--accent-1); }
+
+.prose blockquote {
+  border-left: 2px solid var(--accent-2);
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+.prose code:not(.expressive-code code) {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--accent-1);
+  background: var(--panel);
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+.prose table th,
+.prose table td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.prose table thead {
+  background: rgba(127, 255, 212, 0.04);
+  color: var(--accent-1);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+}
+.prose table tbody tr:hover { background: rgba(127, 255, 212, 0.03); }
+
+.prose hr {
+  border: none;
+  border-top: 1px dashed var(--border);
+  margin: 1.5rem 0;
+}
+
+/* ---------- Expressive Code overrides (frame chrome) ---------- */
+.prose div.expressive-code {
+  margin: 1.25rem 0;
+}
+.prose div.expressive-code figure {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 0;
+  clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+  box-shadow: none !important;
+}
+.prose div.expressive-code figure figcaption {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px dashed var(--border) !important;
+  padding: 0 !important;
+}
+.prose div.expressive-code figure figcaption span.title {
+  color: var(--accent-2) !important;
+  background: transparent !important;
+  border: none !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  padding: 0.4rem 0.85rem !important;
+  width: 100% !important;
+}
+.prose div.expressive-code figure pre {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  scrollbar-width: thin;
+}
+
+/* hide katex-html (used as a11y shadow) */
+.katex-html { display: none; }

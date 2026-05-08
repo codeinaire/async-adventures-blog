@@ -1,60 +1,81 @@
 ---
-import { dateString } from '@utils'
-import { Icon } from 'astro-icon/components'
+// src/components/PostPreview.astro
 import type { CollectionEntry } from 'astro:content'
-import { render } from 'astro:content'
+import { dateString } from '@utils'
 
 interface Props {
   post: CollectionEntry<'posts'>
 }
-
 const { post } = Astro.props
-
-const { remarkPluginFrontmatter } = await render(post)
-const { minutesRead } = remarkPluginFrontmatter
-const description = remarkPluginFrontmatter.description || post.data.description
+const { title, published, tags } = post.data
 ---
 
-<article class="w-full py-5 my-4 border-accent/10">
-  <h1 class="mb-3 text-2xl text-[var(--theme-h1)] font-semibold">
-    <a href={`/posts/${post.id}`}># {post.data.title}</a>
-  </h1>
-  <div class="text-foreground/80 my-3">
-    <time>{dateString(post.data.published)}</time>
-    {
-      post.data.author && (
-        <span class="before:content-['::'] before:inline-block before:mx-0.5">
-          {post.data.author}
-        </span>
-      )
-    }
-    {
-      minutesRead && (
-        <span class="before:content-['::'] before:inline-block before:mx-0.5">
-          {minutesRead}
-        </span>
-      )
-    }
-  </div>
-  {description && <p class="my-4 text-base/7 text-foreground">{description}</p>}
-  {
-    post.data.tags && (
-      <div class="text-accent mb-6">
-        {post.data.tags.sort().map((tag) => (
-          <a
-            class="underline mr-4 inline-block"
-            href={`/tags/${encodeURIComponent(tag)}`}
-          >
-            #{tag}
-          </a>
+<a href={`/posts/${post.id}`} class="entry">
+  <time class="time" datetime={published.toISOString()}>{dateString(published)}</time>
+  <div class="middle">
+    <div class="title">{title}</div>
+    {tags && tags.length > 0 && (
+      <div class="tags">
+        {tags.slice(0, 3).map((t: string) => (
+          <span class="tag">#{t.toLowerCase()}</span>
         ))}
       </div>
-    )
-  }
-  <div>
-    <a class="button flex items-center" href={`/posts/${post.id}`}>
-      Read
-      <Icon name="chevrons-right" class="size-5 ml-2" />
-    </a>
+    )}
   </div>
-</article>
+  <span class="arrow">→</span>
+</a>
+
+<style>
+  .entry {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: 1.125rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed rgba(21, 40, 64, 0.7);
+    align-items: baseline;
+    color: var(--text);
+    text-decoration: none;
+    transition: padding-left 0.2s ease-out;
+  }
+  .entry:hover { padding-left: 0.4rem; }
+  .entry:hover .title {
+    color: var(--accent-1);
+    text-shadow: 0 0 6px var(--glow-aqua);
+  }
+  .time {
+    color: var(--accent-2);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .middle { min-width: 0; }
+  .title {
+    color: var(--text);
+    font-size: 0.875rem;
+    transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
+    line-height: 1.4;
+  }
+  .tags {
+    margin-top: 0.25rem;
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+  .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border: 1px solid var(--border);
+    color: var(--accent-2);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+  }
+  .arrow {
+    color: var(--accent-3);
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 640px) {
+    .entry { grid-template-columns: 1fr auto; }
+    .time { grid-column: 1 / -1; font-size: 0.65rem; opacity: 0.85; }
+  }
+</style>

@@ -1,11 +1,10 @@
 ---
+// src/components/TLDR.astro
 interface Props {
   content: string
 }
-
 const { content } = Astro.props
 
-// Simple markdown to HTML conversion for basic formatting
 function markdownToHtml(markdown: string): string {
   return markdown
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -22,20 +21,33 @@ function markdownToHtml(markdown: string): string {
 const htmlContent = markdownToHtml(content)
 ---
 
-<details
-  class="relative text-foreground/90 bg-foreground/6 px-8 py-6 w-full rounded-xl border-3 border-accent/10 mb-6"
->
-  <summary
-    class="list-none marker:hidden marker:content-[''] before:content-['>'] before:text-accent before:font-semibold before:absolute before:left-3 cursor-pointer"
-    >TLDR</summary
-  >
-  <div class="prose prose-sm max-w-none mt-4">
-    <div set:html={htmlContent} />
-  </div>
-</details>
+<aside class="tldr">
+  <div class="label">▙ TRANSMISSION</div>
+  <div class="body" set:html={htmlContent} />
+</aside>
 
 <style>
-  details[open] summary:before {
-    transform: rotate(90deg);
+  .tldr {
+    background: rgba(127, 255, 212, 0.05);
+    border-left: 2px solid var(--accent-1);
+    padding: 0.75rem 1rem;
+    margin: 0 0 1.25rem;
+    color: var(--text);
   }
+  .label {
+    color: var(--accent-1);
+    font-size: 0.625rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .body { font-size: 0.95rem; line-height: 1.65; }
+  .body :global(p) { margin: 0.4rem 0; }
+  .body :global(p:first-child) { margin-top: 0; }
+  .body :global(p:last-child) { margin-bottom: 0; }
+  .body :global(strong) { color: var(--accent-1); font-weight: 700; }
+  .body :global(em) { color: var(--accent-1); font-style: italic; }
+  .body :global(ul) { padding-left: 1.2rem; margin: 0.4rem 0; }
+  .body :global(li) { margin: 0.2rem 0; }
+  .body :global(li::marker) { color: var(--accent-1); }
 </style>

@@ -87,12 +87,6 @@ export type ColorStyles = {
 // }
 export type ThemesWithColorStyles = Partial<Record<BundledShikiTheme, ColorStyles>>
 
-export interface ThemesConfig {
-  default: BundledShikiTheme | 'auto'
-  mode: 'single' | 'light-dark-auto' | 'select'
-  include: BundledShikiTheme[]
-}
-
 export type SocialLinks = {
   github?: string
   twitter?: string
@@ -119,7 +113,6 @@ export interface SiteConfig {
   socialCardAvatarImage: string
   tags: string[]
   pageSize: number
-  themes: ThemesConfig
   socialLinks: SocialLinks
   navLinks: NavLink[]
   // giscus: GiscusConfig | undefined

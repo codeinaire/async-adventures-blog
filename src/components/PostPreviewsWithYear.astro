@@ -1,33 +1,45 @@
 ---
+// src/components/PostPreviewsWithYear.astro
 import type { CollectionEntry } from 'astro:content'
 import PostPreview from './PostPreview.astro'
 
 interface Props {
   posts: CollectionEntry<'posts'>[]
-  yearMarkers?: boolean
-  class?: string
 }
+const { posts } = Astro.props
 
-const { posts, yearMarkers, class: className } = Astro.props
-let currentYear = 0
+// Group posts by year, preserving the order of the input array (assumed
+// sorted descending by date).
+const groups: { year: number; posts: CollectionEntry<'posts'>[] }[] = []
+for (const p of posts) {
+  const y = p.data.published.getFullYear()
+  const last = groups[groups.length - 1]
+  if (last && last.year === y) last.posts.push(p)
+  else groups.push({ year: y, posts: [p] })
+}
 ---
 
-<div class={className}>
-  {
-    posts.map((post) => {
-      const yearPublished = post.data.published.getFullYear()
-      if (yearMarkers && yearPublished !== currentYear) {
-        currentYear = yearPublished
-        return (
-          <>
-            <div class="text-2xl pb-3 my-7 text-foreground/50 border-b-4 border-dotted border-foreground/20">
-              {yearPublished}
-            </div>
-            <PostPreview post={post} />
-          </>
-        )
-      }
-      return <PostPreview post={post} />
-    })
-  }
+<div class="year-feed">
+  {groups.map((g) => (
+    <section class="year-block">
+      <h2 class="year-label">▙ {g.year}</h2>
+      {g.posts.map((p) => <PostPreview post={p} />)}
+    </section>
+  ))}
 </div>
+
+<style>
+  .year-block { margin-top: 2rem; }
+  .year-block:first-child { margin-top: 0; }
+  .year-label {
+    color: var(--accent-3);
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    border-top: 1px dashed var(--border);
+    padding-top: 1rem;
+    margin: 0 0 0.75rem;
+    font-family: var(--font-body);
+    font-weight: 400;
+  }
+</style>

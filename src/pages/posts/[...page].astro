@@ -1,28 +1,64 @@
 ---
-import type { GetStaticPaths } from 'astro'
+// src/pages/posts/[...page].astro
+import type { GetStaticPaths, Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
 import Layout from '@layouts/Layout.astro'
 import { getSortedPosts } from '@utils'
 import PostPreviewsWithYear from '@components/PostPreviewsWithYear.astro'
 import Pagination from '@components/Pagination.astro'
-import BlockHeader from '@components/BlockHeader.astro'
 import siteConfig from '../../site.config'
 
-// Note: Pagination like '/', '/2', '/3' only works with spread param like [...page]
 export const getStaticPaths = (async ({ paginate }) => {
-  const sortedPosts = await getSortedPosts()
-  return paginate(sortedPosts, { pageSize: siteConfig.pageSize })
+  const posts = await getSortedPosts()
+  return paginate(posts, { pageSize: siteConfig.pageSize * 2 })
 }) satisfies GetStaticPaths
 
-const { page } = Astro.props
+const { page } = Astro.props as { page: Page<CollectionEntry<'posts'>> }
 ---
 
-<Layout>
-  <BlockHeader>Archive</BlockHeader>
+<Layout title="All Transmissions">
+  <section class="archive-hero">
+    <div class="label">▙ ALL TRANSMISSIONS</div>
+    <h1 class="title">all transmissions</h1>
+    <p class="sub">{page.total} field notes — {page.currentPage} / {page.lastPage}</p>
+  </section>
+
   <PostPreviewsWithYear posts={page.data} />
+
   <Pagination
-    prevLink={page.url.prev ? page.url.prev : undefined}
-    prevText="Newer Posts"
-    nextLink={page.url.next ? page.url.next : undefined}
-    nextText="Older Posts"
+    prevLink={page.url.prev}
+    prevText={page.currentPage === 2 ? 'home' : `page ${page.currentPage - 1}`}
+    nextLink={page.url.next}
+    nextText={page.currentPage < page.lastPage ? `page ${page.currentPage + 1}` : undefined}
   />
 </Layout>
+
+<style>
+  .archive-hero {
+    padding: 2rem 0 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+  }
+  .label {
+    color: var(--accent-3);
+    font-size: 0.625rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.05;
+    letter-spacing: 0.04em;
+    color: var(--accent-1);
+    text-shadow: 0 0 10px var(--glow-aqua), 0 0 28px var(--glow-aqua-soft);
+    margin: 0.5rem 0 0.4rem;
+    font-weight: 400;
+  }
+  .sub {
+    color: var(--accent-2);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    margin: 0;
+  }
+</style>

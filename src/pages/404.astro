@@ -1,7 +1,61 @@
 ---
+// src/pages/404.astro
 import Layout from '@layouts/Layout.astro'
 ---
 
-<Layout>
-  <h1 class="inline-block m-auto p-4 text-accent text-4xl">404</h1>
+<Layout title="No Transmission">
+  <section class="lost">
+    <div class="label">▙ NO TRANSMISSION</div>
+    <h1 class="big">404</h1>
+    <p class="msg">The signal didn't reach this page. Try returning to the surface.</p>
+    <a href="/" class="surface-link">▶ RETURN TO SURFACE</a>
+  </section>
 </Layout>
+
+<style>
+  .lost {
+    padding: 4rem 0 5rem;
+    text-align: center;
+  }
+  .label {
+    color: var(--accent-3);
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .big {
+    font-family: var(--font-display);
+    font-size: 5.5rem;
+    line-height: 1;
+    color: var(--accent-1);
+    text-shadow:
+      0 0 12px var(--glow-aqua-strong),
+      0 0 36px var(--glow-aqua),
+      0 0 72px var(--glow-aqua-soft);
+    margin: 1rem 0 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+  .msg {
+    color: var(--text);
+    opacity: 0.85;
+    font-size: 0.9rem;
+    max-width: 32rem;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+  .surface-link {
+    display: inline-block;
+    padding: 0.65rem 1.25rem;
+    color: var(--accent-3);
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: rgba(10, 24, 40, 0.5);
+    clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+    transition: border-color 0.2s ease-out, color 0.2s ease-out;
+  }
+  .surface-link:hover { border-color: var(--accent-2); color: var(--accent-1); }
+</style>

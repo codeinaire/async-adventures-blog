@@ -1,30 +1,56 @@
 ---
+// src/components/Footer.astro
 import siteConfig from '../site.config'
-import SocialLinks from '@components/SocialLinks.astro'
+
+const year = new Date().getFullYear()
+const social = siteConfig.socialLinks
 ---
 
-<footer
-  class="mt-12 grow-0 flex flex-col gap-6 items-center justify-between max-w-full text-foreground/80"
->
-  {siteConfig.socialLinks && <SocialLinks socialLinks={siteConfig.socialLinks} />}
-  <div class="flex flex-col md:flex-row flex-wrap flex-1 items-center justify-center">
-    <span class="my-1">
-      {siteConfig.author} © 2025
-    </span>
-    <span class="mx-5 hidden md:block"> :: </span>
-    <span class="my-1">
-      Powered by <a
-        class="underline"
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://astro.build">Astro</a
-      >
-      & <a
-        class="underline"
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://github.com/stelcodes/multiterm-astro">MultiTerm</a
-      >
-    </span>
+<footer>
+  <div class="left">
+    <span class="muted">// © {year} {siteConfig.author.toLowerCase()} · {siteConfig.title.toLowerCase()}</span>
+    <span class="quirky">// All posts lovingly crafted by a human</span>
+  </div>
+  <div class="right">
+    {social.github && (
+      <a href={social.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-link">github</a>
+    )}
+    {social.email && (
+      <a href={`mailto:${social.email}`} aria-label="Email" class="social-link">email</a>
+    )}
+    {social.linkedin && (
+      <a href={social.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-link">linkedin</a>
+    )}
+    <span class="amber">// END OF TRANSMISSION</span>
   </div>
 </footer>
+
+<style>
+  footer {
+    grid-area: footer;
+    margin-top: 3rem;
+    padding: 1rem 0;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .left { display: flex; flex-direction: column; gap: 0.4rem; color: var(--muted); }
+  .left .quirky { color: var(--muted); font-style: italic; opacity: 0.7; text-transform: none; letter-spacing: 0; font-size: 0.7rem; }
+  .right { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .social-link {
+    color: var(--accent-2);
+    text-decoration: none;
+    transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
+  }
+  .social-link:hover {
+    color: var(--accent-1);
+    text-shadow: 0 0 8px var(--glow-aqua);
+  }
+  .amber { color: var(--accent-3); }
+</style>

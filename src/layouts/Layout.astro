@@ -1,13 +1,9 @@
 ---
+// src/layouts/Layout.astro
 import '/src/styles/global.css'
 import Header from '@components/Header.astro'
 import Footer from '@components/Footer.astro'
-import LightDarkAutoThemeLoader from '@components/LightDarkAutoThemeLoader.astro'
-import SelectThemeLoader from '@components/SelectThemeLoader.astro'
-import TagsSidebar from '@components/TagsSidebar.astro'
 import siteConfig from '../site.config'
-import { pick, resolveThemeColorStyles, getTagCounts, getAllPostTags } from '@utils'
-import crypto from 'crypto'
 
 interface Props {
   title?: string
@@ -17,7 +13,7 @@ interface Props {
 }
 
 const { title, description, tags, author } = Astro.props
-const pageUrl = new URL(Astro.url.pathname, Astro.site).href.replace(/\/$/, '') // Remove trailing slash for consistency
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href.replace(/\/$/, '')
 const pageType = Astro.url.pathname.startsWith('/posts') ? 'article' : 'website'
 const pageTitle = title ? `${title} - ${siteConfig.title}` : siteConfig.title
 const pageDescription = description || siteConfig.description
@@ -25,98 +21,20 @@ const pageAuthor = author || siteConfig.author
 const pageImage =
   pageType === 'article'
     ? Astro.url.origin +
-      Astro.url.pathname.replace(/\/posts\//, '/social-cards/') +
-      '.png'
+      Astro.url.pathname.replace(/\/posts\//, '/social-cards/') + '.png'
     : `${Astro.url.origin}/social-cards/__default.png`
 const pageKeywords = [
-  ...new Set(siteConfig.tags.concat(tags || []).map((word) => word.toLowerCase())),
+  ...new Set(siteConfig.tags.concat(tags || []).map((w) => w.toLowerCase())),
 ].join(', ')
-const baseCssVars: { [key: string]: string } = {
-  'theme-font': siteConfig.font,
-  'ec-frm-frameBoxShdCssVal': 'none',
-  'ec-frm-edTabBrdRad': '0',
-  'ec-frm-edTabBarBrdCol':
-    'color-mix(in srgb, var(--theme-foreground), 10%, transparent)',
-  'ec-brdCol': 'color-mix(in srgb, var(--theme-foreground), 10%, transparent)',
-}
-
-let themeMode = siteConfig.themes.mode
-if (siteConfig.themes.include.length < 1) {
-  throw new Error('No themes defined in site.config. Please add at least one theme.')
-}
-if (themeMode === 'light-dark-auto' && siteConfig.themes.include.length < 2) {
-  console.warn(
-    'Theme mode "dark-light-auto" requires at least two themes. Defaulting to "single".',
-  )
-  themeMode = 'single'
-}
-let defaultTheme = siteConfig.themes.default || siteConfig.themes.include[0]
-let includedThemes = siteConfig.themes.include as string[]
-if (!includedThemes.includes(defaultTheme)) {
-  console.warn(
-    `Default theme "${defaultTheme}" not found in themes. Using first theme: "${siteConfig.themes.include[0]}".`,
-  )
-  defaultTheme = siteConfig.themes.include[0]
-}
-let lightTheme = themeMode === 'light-dark-auto' ? includedThemes[0] : undefined
-let darkTheme = themeMode === 'light-dark-auto' ? includedThemes[1] : undefined
-
-// Generate a hash to use for cache busting the theme settings in localStorage.
-const themeHash = crypto
-  .createHash('md5')
-  .update(themeMode + defaultTheme + includedThemes.join(''))
-  .digest('hex')
-  .slice(0, 8) // Truncate to the first 8 characters
-
-const resolvedThemes = await resolveThemeColorStyles(siteConfig.themes.include)
-const tagCounts = await getTagCounts()
-const allPostTags = await getAllPostTags()
-
-let cssLines: string[] = []
-for (const [themeId, themeStyles] of Object.entries(resolvedThemes)) {
-  const relevantStyles = pick(themeStyles, [
-    'foreground',
-    'background',
-    'accent',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'li',
-    'italic',
-    'a',
-    'hr',
-    'blue',
-    'green',
-    'red',
-    'yellow',
-    'magenta',
-    'cyan',
-  ])
-  cssLines.push(`:root[data-theme="${themeId}"] {`)
-  for (const [key, value] of Object.entries(relevantStyles)) {
-    cssLines.push(`--theme-${key}: ${value};`)
-  }
-  cssLines.push(`}`)
-}
-let generatedCss: string = cssLines.join('\n')
 ---
 
 <!doctype html>
-<html
-  lang="en"
-  data-theme={defaultTheme}
-  data-dark-theme={darkTheme}
-  data-light-theme={lightTheme}
-  data-theme-mode={themeMode}
-  data-theme-hash={themeHash}
->
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#060f1c" />
     <meta name="title" content={pageTitle} />
     <meta name="description" content={pageDescription} />
     <meta name="author" content={pageAuthor} />
@@ -132,7 +50,8 @@ let generatedCss: string = cssLines.join('\n')
     <meta name="keywords" content={pageKeywords} />
     <link rel="canonical" href={pageUrl} />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <!-- <link rel="icon" href="/favicon.svg" type="image/svg+xml" /> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -140,29 +59,31 @@ let generatedCss: string = cssLines.join('\n')
       href={new URL('rss.xml', Astro.site)}
     />
     <title>{pageTitle}</title>
-    <style is:global define:vars={baseCssVars}></style>
-    <style is:inline set:html={generatedCss}></style>
-    {themeMode === 'light-dark-auto' && <LightDarkAutoThemeLoader />}
-    {themeMode === 'select' && <SelectThemeLoader />}
   </head>
-  <body class="w-full h-full m-0 bg-background text-foreground">
-    <div
-      class="min-h-screen border-accent/10 m-auto py-5 px-4 sm:px-6 md:p-10"
-      style="max-width: 1200px; display: grid; grid-template-columns: 1fr; grid-template-areas: 'header' 'main' 'footer';"
-    >
+  <body>
+    <div class="page">
       <Header />
-      <main
-        class="grid grid-cols-1 lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_340px] gap-8 lg:gap-12"
-      >
-        <div class="min-w-0">
-          <slot />
-        </div>
-        <aside class="hidden lg:block lg:sticky lg:top-24 lg:self-start space-y-6">
-          <TagsSidebar tags={tags || allPostTags} tagCounts={tagCounts} />
-          <slot name="sidebar" />
-        </aside>
+      <main>
+        <slot />
       </main>
       <Footer />
     </div>
   </body>
 </html>
+
+<style is:global>
+  .page {
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 1.25rem 1rem;
+    max-width: 880px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: 'header' 'main' 'footer';
+  }
+  main { grid-area: main; min-width: 0; }
+
+  @media (min-width: 768px) {
+    .page { padding: 2rem 1.5rem; }
+  }
+</style>

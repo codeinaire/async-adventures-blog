@@ -1,37 +1,49 @@
 ---
+// src/pages/index.astro
 import Layout from '@layouts/Layout.astro'
 import { getSortedPosts } from '@utils'
-import { getCollection, render } from 'astro:content'
+import { getCollection } from 'astro:content'
 import PostPreview from '@components/PostPreview.astro'
-import Pagination from '@components/Pagination.astro'
-import HomeBanner from '@components/HomeBanner.astro'
+import HomeHero from '@components/HomeHero.astro'
 import siteConfig from '../site.config'
 
 const home = await getCollection('home')
-let HomeContent
-let homeAvatarImage
-let homeGithubCalendar
-let homeBannerContent
-if (home.length > 0) {
-  const homeEntry = home[0]
-  const { Content } = await render(homeEntry)
-  HomeContent = Content
-  homeAvatarImage = homeEntry.data.avatarImage
-  homeGithubCalendar = homeEntry.data.githubCalendar
-  homeBannerContent = homeEntry.data.bannerContent
-}
+const homeEntry = home[0]
+const subtitle = homeEntry?.data.subtitle ?? siteConfig.description
+
 const sortedPosts = await getSortedPosts()
+const recentPosts = sortedPosts.slice(0, siteConfig.pageSize)
+
+// All-time counts for the hero
+const tagSet = new Set<string>()
+for (const p of sortedPosts) {
+  for (const t of (p.data.tags ?? []) as string[]) tagSet.add(t.toLowerCase())
+}
 ---
 
 <Layout>
-  {homeBannerContent && <HomeBanner content={homeBannerContent} />}
-  {HomeContent && <HomeContent />}
-  {sortedPosts.slice(0, siteConfig.pageSize).map((post) => <PostPreview post={post} />)}
-  <Pagination nextLink="/posts" nextText="More Posts" />
+  <HomeHero postCount={sortedPosts.length} tagCount={tagSet.size} subtitle={subtitle} />
+  <section class="feed">
+    {recentPosts.map((post) => <PostPreview post={post} />)}
+  </section>
+  <a href="/posts" class="all-link">▶ ALL TRANSMISSIONS</a>
 </Layout>
 
-<style is:global>
-  a.heading-anchor {
-    display: none !important;
+<style>
+  .feed { margin-bottom: 1rem; }
+  .all-link {
+    display: block;
+    text-align: center;
+    color: var(--accent-3);
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 0.85rem 1rem;
+    margin-top: 1rem;
+    border: 1px dashed var(--border);
+    text-decoration: none;
+    clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+    transition: border-color 0.2s ease-out, color 0.2s ease-out;
   }
+  .all-link:hover { border-color: var(--accent-3); color: var(--text); }
 </style>

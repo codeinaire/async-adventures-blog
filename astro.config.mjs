@@ -8,6 +8,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import expressiveCode from 'astro-expressive-code'
 import siteConfig from './src/site.config'
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
+import bioluminescentAbyss from './src/styles/themes/bioluminescent-abyss.json' with { type: 'json' }
 import icon from 'astro-icon'
 import {
   remarkDescription,
@@ -73,11 +74,26 @@ export default defineConfig({
   integrations: [
     sitemap(),
     expressiveCode({
-      themes: siteConfig.themes.include,
+      themes: [bioluminescentAbyss],
       useDarkModeMediaQuery: false,
       defaultProps: {
         showLineNumbers: false,
         wrap: false,
+      },
+      styleOverrides: {
+        borderRadius: '0',
+        codeBackground: 'var(--panel)',
+        frames: {
+          frameBoxShadowCssValue: 'none',
+          editorTabBarBorderColor: 'var(--border)',
+          editorTabBarBackground: 'transparent',
+          editorActiveTabBackground: 'transparent',
+          editorActiveTabIndicatorTopColor: 'var(--accent-1)',
+          editorActiveTabIndicatorBottomColor: 'transparent',
+          terminalBackground: 'var(--panel)',
+          terminalTitlebarBackground: 'transparent',
+          terminalTitlebarBorderBottomColor: 'var(--border)',
+        },
       },
       plugins: [pluginLineNumbers()],
     }), // Must come after expressive-code integration
